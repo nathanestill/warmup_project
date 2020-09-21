@@ -25,13 +25,13 @@ class Wallfollow(object):
 		marker = Marker() # marks the path that the tractor will take
 		marker.header.frame_id = "odom"
 		marker.header.stamp = rospy.Time.now()
-		marker.scale = Vector3(0.8, 0.8, 0.8)
-		marker.color = ColorRGBA(1,1,1,0) # white
+		marker.scale = Vector3(0.02, 0.02, 0.02)
+		marker.color = ColorRGBA(1,1,0,1) # white
 		marker.type = marker.POINTS
 		for i in range(len(self.laserscan)):
 			pointx = self.laserscan[i] * math.cos(math.radians(i))
 			pointy = self.laserscan[i] * math.sin(math.radians(i))
-			marker.points.append(Point(pointx,pointy,1.0))
+			marker.points.append(Point(pointx,pointy,0.0))
 		self.vis_pub.publish(marker);
 
 	def scanCB(self,msg):
