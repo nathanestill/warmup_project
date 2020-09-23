@@ -12,3 +12,7 @@ The next problem is to create a node that follows the wall using the LIDAR senso
 ### Person Follow
 
 This problem is to follow a person that is in front of the robot. To find the person, the smallest distance from the scan is translated to Cartesian coordinates in the Neato reference frame. The X coordinate is fed into the linear velocity. This results in a faster speed if the person is farther and slower as it approaches the person. The Y coordinate is fed into the angular velocity. This results in the robot turning towards the person, lowering the Y coordinate until the person is directly ahead of the robot. Both of these combined allow the robot to turn towards the person while moving forward as well.
+
+### Obstacle Avoidance
+
+The penultimate problem is to create a node that will navigate through obstacles in order to reach a goal. To do this, I used the concept of a potential field. Each point in the laser scan that is within a certain range causes a vector to be applied to the robot away from it. The goal that is chosen applies a large vector towards it, even from far away. These vectors are summed up to get hte vector that the Neato will follow, using the same vector to twist command as the Person Follow section. In this way, the robot will naturally stray away from obstacles and go towards the goal.  
