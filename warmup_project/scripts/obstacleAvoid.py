@@ -24,6 +24,7 @@ class ObstacleAvoid(object):
 		self.orientation = None
 		self.Person = Point()
 		self.rate = rospy.Rate(10)
+		self.sightRange = 1.5
 
 	def laserCB(self,msg):
 		self.laser = msg.ranges
@@ -34,16 +35,27 @@ class ObstacleAvoid(object):
 
 	def findObstacles(self):
 		self.obstacleVectors = Point()
+		alpha = 0.003
 		for i in range(len(self.laser)):
-			if(self.laser[i] < 5):
-				self.obstacleVectors.x -= (0.01 / self.laser[i]) * math.cos(math.radians(i))
-				self.obstacleVectors.y -= (0.01 / self.laser[i]) * math.sin(math.radians(i))
+			if(self.laser[i] < self.sightRange):
+				self.obstacleVectors.x += alpha * (self.laser[i] - self.sightRange) * math.cos(math.radians(i))
+				self.obstacleVectors.y += alpha * (self.laser[i] - self.sightRange) * math.sin(math.radians(i))
 
 	def goToGoal(self):
+		alpha = 0.2
 		goalPoint = Point(x=10.0,y=0.0)
-		x = -math.cos(self.orientation) * (goalPoint.x - self.position.x) + math.sin(self.orientation) * (goalPoint.y - self.position.y) 
-		y = math.sin(self.orientation) * (self.position.x - goalPoint.x) + math.cos(self.orientation) * (goalPoint.y - self.position.y)
-		self.goalVector = Point(x=x / numpy.linalg.norm([x,y]),y=y / numpy.linalg.norm([x,y]))
+		coordX = -(math.cos(-self.orientation) * (goalPoint.x - self.position.x) + math.sin(-self.orientation) * (goalPoint.y - self.position.y)) 
+		coordY = -(math.sin(-self.orientation) * (self.position.x - goalPoint.x) + math.cos(-self.orientation) * (goalPoint.y - self.position.y))
+		dist = math.sqrt(coordX**2 + coordY**2)
+		angle = math.atan2(coordY,coordX)
+		if(dist < self.sightRange):
+			vectorX = alpha * dist * math.cos(angle)
+			vectorY = alpha * dist * math.sin(angle)
+		else:
+			vectorX = alpha * self.sightRange * math.cos(angle)
+			vectorY = alpha * self.sightRange * math.sin(angle)
+
+		self.goalVector = Point(x=vectorX,y=vectorY)
 
 	def routeRobot(self):
 		velCmd = Twist()
