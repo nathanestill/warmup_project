@@ -29,7 +29,6 @@ class Square(object):
 			self.pub.publish(Twist(linear=Vector3(x=0.3)))
 
 	def turnRight(self):
-		rospy.loginfo(str(self.registeredOrient) + " " + str(self.orientation))
 		if(self.registeredOrient+0.1 < self.orientation):	
 			self.registeredOrient += 2*math.pi
 		if(self.orientation + math.pi/2 <= self.registeredOrient):

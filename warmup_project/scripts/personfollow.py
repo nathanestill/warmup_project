@@ -30,12 +30,11 @@ class Personfollow(object):
 		for i in range(len(self.laser)):
 			if(self.laser[i] < self.laser[closest]):
 				closest = i
-		rospy.loginfo(self.laser[closest])
 		self.Person.x = self.laser[closest] * math.cos(math.radians(closest))
 		self.Person.y = self.laser[closest] * math.sin(math.radians(closest))
 
 	def goToPerson(self):
-		if(abs(self.Person.x) < 0.3 and abs(self.Person.y) < 0.1):
+		if(self.Person.x < 0.3 or abs(self.Person.y) > 1.3 or self.Person.x > 3.0):
 			self.pub.publish(Twist())
 		else:
 			self.pub.publish(Twist(linear=Vector3(x=numpy.clip(self.Person.x,-1.5,1.5)),angular=Vector3(z=numpy.clip(self.Person.y,-1.5,1.5))))

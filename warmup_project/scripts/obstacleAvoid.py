@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import rospy
-from geometry_msgs.msg import Twist, Vector3, Point, Quaternion
+from geometry_msgs.msg import Twist, Vector3, Point, Quaternion, PoseStamped
 from tf.transformations import euler_from_quaternion
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
@@ -19,12 +19,14 @@ class ObstacleAvoid(object):
 		self.vis_pub = rospy.Publisher("/vis_scan",Marker,queue_size=10)
 		self.visPersonPub = rospy.Publisher("/person",Marker,queue_size=10)
 		self.odomSub = rospy.Subscriber("/odom", Odometry, self.odomCB)
+		self.goalSub = rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.goalCB)
 		self.laser = None
 		self.position = None
 		self.orientation = None
+		self.goalStamped = None
 		self.Person = Point()
 		self.rate = rospy.Rate(10)
-		self.sightRange = 1.5
+		self.sightRange = 3.0
 
 	def laserCB(self,msg):
 		self.laser = msg.ranges
@@ -32,6 +34,9 @@ class ObstacleAvoid(object):
 	def odomCB(self,msg):
 		self.position = msg.pose.pose.position
 		self.orientation = euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0]
+	def goalCB(self,msg):
+		self.goalStamped = msg
+
 
 	def findObstacles(self):
 		self.obstacleVectors = Point()
@@ -43,9 +48,16 @@ class ObstacleAvoid(object):
 
 	def goToGoal(self):
 		alpha = 0.2
-		goalPoint = Point(x=10.0,y=0.0)
-		coordX = -(math.cos(-self.orientation) * (goalPoint.x - self.position.x) + math.sin(-self.orientation) * (goalPoint.y - self.position.y)) 
-		coordY = -(math.sin(-self.orientation) * (self.position.x - goalPoint.x) + math.cos(-self.orientation) * (goalPoint.y - self.position.y))
+		if(self.goalStamped == None):
+			goalPoint = Point(x=10.0,y=0.0)
+			coordX = -(math.cos(-self.orientation) * (goalPoint.x - self.position.x) + math.sin(-self.orientation) * (goalPoint.y - self.position.y)) 
+			coordY = -(math.sin(-self.orientation) * (self.position.x - goalPoint.x) + math.cos(-self.orientation) * (goalPoint.y - self.position.y))
+		elif(self.goalStamped.header.frame_id == 'odom'):
+			coordX = self.goalStamped.pose.position.x
+			coordY = self.goalStamped.pose.position.y
+		else:
+			coordX = -(math.cos(-self.orientation) * (self.goalStamped.pose.position.x - self.position.x) + math.sin(-self.orientation) * (self.goalStamped.pose.position.y - self.position.y)) 
+			coordY = -(math.sin(-self.orientation) * (self.position.x - self.goalStamped.pose.position.x) + math.cos(-self.orientation) * (self.goalStamped.pose.position.y - self.position.y))
 		dist = math.sqrt(coordX**2 + coordY**2)
 		angle = math.atan2(coordY,coordX)
 		if(dist < self.sightRange):

@@ -1,0 +1,6 @@
+<launch>
+	<node name="FSM" pkg="warmup_project" type="FSM.py"/>
+	<node name="PersonfollowState" pkg="warmup_project" type="personfollowState.py"/>
+	<node name="ObstacleAvoidState" pkg="warmup_project" type="obstacleAvoidState.py"/>
+</launch>
+	
