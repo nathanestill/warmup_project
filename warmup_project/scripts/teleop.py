@@ -42,6 +42,8 @@ class Teleop(object):
 			elif(self.key == "."):
 				self.pub.publish(Twist(linear=Vector3(x=-1.0),angular=Vector3(z=-1.0)))
 
+			rospy.loginfo("Key Pressed: " + self.key)
+
 if __name__ == '__main__':
 	te = Teleop()
 	te.main()
