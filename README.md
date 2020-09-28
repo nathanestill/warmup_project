@@ -23,6 +23,8 @@ The second problem is to create a node that moves the Neato in a 1m by 1m square
 
 ### Wall Follow
 
+![Wall Follow Demo](screenshots/WallFollow.gif)
+
 The next problem is to create a node that follows the wall using the LIDAR sensor. For each tick, an average of all scans from 30 degrees to 60 degrees are averaged to form the front scan, and all scans from 120 degrees to 150 degrees are averaged to form the back scan. If the front scan average is larger than the back scan, then the robot will move forward and slightly to the right. If the front scan average is less than the back scan, then the robot will move forward and slightly to the left. The respective actions will eventually make the robot follow along the wall.
 
 ### Person Follow
